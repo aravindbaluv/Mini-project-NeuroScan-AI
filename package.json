@@ -1,0 +1,23 @@
+{
+  "name": "neuroscan-ai-brain-tumor-system",
+  "version": "4.2.0",
+  "description": "AI-Assisted Brain Tumor Detection, Classification & Localization System with PACS Workstation and Clinical Database",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "brain-tumor",
+    "mri",
+    "ai",
+    "deep-learning",
+    "dicom",
+    "pacs",
+    "neurology",
+    "oncology",
+    "database"
+  ],
+  "author": "NeuroScan Health Technologies",
+  "license": "MIT"
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "#NS-8042-GBM",
+    "patientName": "Doe, John M.",
+    "mrn": "MR-9823101",
+    "ageSex": "54Y / Male",
+    "sequence": "MRI 3.0T AX T1-CE + FLAIR",
+    "tumorType": "GLIOMA",
+    "diagnosis": "High-Grade Glioblastoma Multiforme (GBM)",
+    "whoGrade": "WHO Grade IV",
+    "confidence": 98.4,
+    "volumetrics": {
+      "volume": "28.4 cm³",
+      "diameter": "41.8 mm",
+      "laterality": "Right Frontal-Temporal",
+      "midlineShift": "4.2 mm"
+    },
+    "indication": "Progressive cephalalgia of 4 weeks duration with acute left hemiparesis.",
+    "impression": "Solitary, heterogeneously enhancing infiltrative intra-axial mass in right frontal-temporal operculum with central necrosis.",
+    "recommendations": "Neurosurgical consultation for maximal safe resection. Anti-edema dexamethasone therapy initiated.",
+    "createdAt": "2026-10-13T14:22:00.000Z",
+    "updatedAt": "2026-10-13T14:22:00.000Z"
+  },
+  {
+    "id": "#NS-7119-MEN",
+    "patientName": "Vance, Eleanor R.",
+    "mrn": "MR-4402917",
+    "ageSex": "58Y / Female",
+    "sequence": "MRI 3.0T AX T1-CE + T2",
+    "tumorType": "MENINGIOMA",
+    "diagnosis": "Parasagittal Convexity Meningioma",
+    "whoGrade": "WHO Grade I",
+    "confidence": 97.6,
+    "volumetrics": {
+      "volume": "16.2 cm³",
+      "diameter": "32.5 mm",
+      "laterality": "Right Parietal Convexity",
+      "midlineShift": "1.8 mm"
+    },
+    "indication": "Incidental finding on investigation for persistent tension headaches.",
+    "impression": "Well-circumscribed extra-axial mass arising from right parietal convexity dura with positive dural tail sign.",
+    "recommendations": "Neurosurgical review for elective Simpson Grade I resection vs. surveillance.",
+    "createdAt": "2026-10-12T11:15:00.000Z",
+    "updatedAt": "2026-10-12T11:15:00.000Z"
+  },
+  {
+    "id": "#NS-4902-PIT",
+    "patientName": "Brody, Marcus A.",
+    "mrn": "MR-7718290",
+    "ageSex": "47Y / Male",
+    "sequence": "MRI 3.0T PITUITARY PROTOCOL (T1+C)",
+    "tumorType": "PITUITARY",
+    "diagnosis": "Pituitary Macroadenoma",
+    "whoGrade": "WHO Grade I",
+    "confidence": 98.9,
+    "volumetrics": {
+      "volume": "8.7 cm³",
+      "diameter": "22.4 mm",
+      "laterality": "Sellar / Midline Centered",
+      "midlineShift": "0.0 mm"
+    },
+    "indication": "Visual field disturbances and progressive bitemporal hemianopsia.",
+    "impression": "Enlarged sella turcica with macroadenoma abutting optic chiasm without cavernous sinus invasion.",
+    "recommendations": "Neuro-ophthalmology visual field exam & endocrine hormone panel evaluation.",
+    "createdAt": "2026-10-10T09:40:00.000Z",
+    "updatedAt": "2026-10-10T09:40:00.000Z"
+  },
+  {
+    "id": "#NS-1025-NRM",
+    "patientName": "Connor, Sarah L.",
+    "mrn": "MR-1092844",
+    "ageSex": "32Y / Female",
+    "sequence": "MRI 3.0T BRAIN SCREENING (T1+T2)",
+    "tumorType": "NORMAL",
+    "diagnosis": "Normal Brain (Healthy Neuro-Anatomy)",
+    "whoGrade": "Non-Neoplastic",
+    "confidence": 99.6,
+    "volumetrics": {
+      "volume": "0.0 cm³",
+      "diameter": "0.0 mm",
+      "laterality": "Symmetrical",
+      "midlineShift": "0.0 mm"
+    },
+    "indication": "Atypical migraine headache screening evaluation.",
+    "impression": "Unremarkable non-contrast and contrast brain MRI study. Ventricular symmetry preserved.",
+    "recommendations": "No neuro-oncologic intervention required. Outpatient headache management.",
+    "createdAt": "2026-10-08T16:05:00.000Z",
+    "updatedAt": "2026-10-08T16:05:00.000Z"
+  }
+]

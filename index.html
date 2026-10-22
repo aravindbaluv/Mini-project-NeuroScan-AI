@@ -1,0 +1,2492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroScan AI™ | Brain Tumor Detection, Classification & Localization System</title>
+  <meta name="description" content="AI-assisted clinical neuroimaging system for deep-learning detection, multi-class classification, and volumetric segmentation of brain tumors in MRI scans.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- App Container -->
+  <div class="app-layout">
+    <!-- Top Clinical Navigation Header -->
+    <header class="top-header">
+      <div class="brand-group" id="btnBrandHome" style="cursor: pointer;" title="Return to Front Homepage">
+        <div class="brand-logo">
+          <div class="pulse-ring"></div>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9" stroke="url(#logo-grad)"/>
+            <path d="M12 3a9 9 0 0 1 9 9M12 3v18M3 12h18" stroke="url(#logo-grad)" stroke-dasharray="2 2"/>
+            <circle cx="8.5" cy="8.5" r="2.5" fill="#00e5ff"/>
+            <defs>
+              <linearGradient id="logo-grad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00e5ff"/>
+                <stop offset="1" stop-color="#7c4dff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-meta">
+          <div class="brand-title-wrap">
+            <span class="brand-title">NeuroScan</span>
+            <span class="brand-badge">AI 4.2 Pro</span>
+            <span class="cert-pill">CE / FDA SaMD Draft</span>
+          </div>
+          <span class="brand-subtitle">AI-Assisted MRI Neuro-Oncology Diagnostic Suite</span>
+        </div>
+      </div>
+
+      <!-- Quick Patient & Modality Info -->
+      <div class="header-patient-info" id="headerPatientInfo">
+        <div class="info-item">
+          <span class="info-label">PATIENT ID</span>
+          <span class="info-val" id="dispPatientId">#NS-8042-GBM</span>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-item">
+          <span class="info-label">AGE / SEX</span>
+          <span class="info-val" id="dispPatientAgeSex">54Y / Male</span>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-item">
+          <span class="info-label">STUDY / SEQUENCE</span>
+          <span class="info-val highlight" id="dispPatientSeq">MRI 3.0T AX T1-CE + FLAIR</span>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-item">
+          <span class="info-label">DATABASE</span>
+          <span class="status-indicator online" id="dispDbStatus" title="Active Storage: IndexedDB (Persistent) / REST API">
+            <span class="dot"></span> <span id="dispDbEngine">NeuroDB (Active)</span>
+          </span>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-item">
+          <span class="info-label">CLOUD API</span>
+          <span class="status-indicator online" id="dispCloudStatus" title="Cloud Inference API & Remote Sync">
+            <span class="dot" style="background: #00e5ff; box-shadow: 0 0 8px #00e5ff;"></span> <span id="dispCloudEngine">Cloud: Ready</span>
+          </span>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-item">
+          <span class="info-label">INFERENCE STATUS</span>
+          <span class="status-indicator online" id="dispInferenceStatus">
+            <span class="dot"></span> READY (34ms)
+          </span>
+        </div>
+      </div>
+
+      <!-- Header Action Controls -->
+      <div class="header-actions">
+        <!-- View Switcher Navigation: Front Home vs Doctor PACS vs Patient Portal -->
+        <div class="header-view-switcher" id="headerViewSwitcher">
+          <button class="view-switch-btn active" id="btnNavHome" title="Return to Front Homepage">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+          </button>
+          <button class="view-switch-btn" id="btnNavDoctorPacs" title="Switch to Clinician Diagnostic PACS Workstation">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span>Doctor PACS</span>
+          </button>
+          <button class="view-switch-btn" id="btnNavPatientPortal" title="Switch to Patient Care & Diagnostic Portal">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+            <span>Patient Portal</span>
+          </button>
+        </div>
+
+        <button class="btn btn-patient-badge-cta" id="btnHeaderPatientLogin" title="Patient Sign In with User ID & Password">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+          <span id="txtHeaderPatientAuth">Patient Sign In</span>
+        </button>
+        <button class="btn btn-secondary" id="btnOpenDatabase" title="View Patient Database and Saved Studies">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Records DB (<span id="dbRecordCountBadge">4</span>)
+        </button>
+        <button class="btn btn-secondary" id="btnOpenCloudModal" title="Cloud API & Remote Model Configuration">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          Cloud & API
+        </button>
+        <button class="btn btn-secondary" id="btnOpenDocs" title="View Model Architecture and Clinical Validation">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Clinical Spec
+        </button>
+        <!-- Export Hub Dropdown -->
+        <div class="export-dropdown-container">
+          <button class="btn btn-secondary btn-export-hub" id="btnOpenExportMenu" title="Export Clinical Report, MRI Image, JSON & CSV Data">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Export</span>
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="export-dropdown-panel" id="exportDropdownPanel" style="display: none;">
+            <div class="export-panel-header">
+              <span class="export-panel-title">CLINICAL EXPORT HUB</span>
+              <span class="export-panel-sub">Select format for active study</span>
+            </div>
+            <div class="export-options-list">
+              <button class="export-option-item highlight-export" id="btnOpenReportExportStudio">
+                <div class="exp-icon purple">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="exp-details">
+                  <span class="exp-title">Report Exporting Studio...</span>
+                  <span class="exp-desc">Interactive multi-format clinical dossier builder</span>
+                </div>
+              </button>
+
+              <button class="export-option-item" id="btnExportHtmlDossier">
+                <div class="exp-icon cyan">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </div>
+                <div class="exp-details">
+                  <span class="exp-title">Standalone HTML Dossier (.HTML)</span>
+                  <span class="exp-desc">Self-contained file with embedded MRI scan</span>
+                </div>
+              </button>
+
+              <button class="export-option-item" id="btnExportPdfReport">
+                <div class="exp-icon red">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <div class="exp-details">
+                  <span class="exp-title">Radiology Report (PDF / Print)</span>
+                  <span class="exp-desc">Official signed diagnostic clinical report</span>
+                </div>
+              </button>
+
+              <button class="export-option-item" id="btnExportMriImage">
+                <div class="exp-icon cyan">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <div class="exp-details">
+                  <span class="exp-title">MRI Scan with AI Overlays (PNG)</span>
+                  <span class="exp-desc">High-res canvas capture with Grad-CAM & caliper</span>
+                </div>
+              </button>
+
+              <button class="export-option-item" id="btnExportStudyJson">
+                <div class="exp-icon amber">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                </div>
+                <div class="exp-details">
+                  <span class="exp-title">Study Finding Data (JSON)</span>
+                  <span class="exp-desc">Volumetrics, coordinates & DICOM metadata</span>
+                </div>
+              </button>
+
+              <button class="export-option-item" id="btnExportRecordsCsv">
+                <div class="exp-icon green">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+                </div>
+                <div class="exp-details">
+                  <span class="exp-title">Clinical Cohort Database (CSV)</span>
+                  <span class="exp-desc">Excel-ready tabular dataset of all patients</span>
+                </div>
+              </button>
+
+              <button class="export-option-item" id="btnExportReportTxt">
+                <div class="exp-icon blue">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                </div>
+                <div class="exp-details">
+                  <span class="exp-title">Diagnostic Summary (.TXT)</span>
+                  <span class="exp-desc">Lightweight plain text clinical transcription</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+        <label class="btn btn-primary" for="fileInputUpload" id="btnUploadLabel">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload MRI
+          <input type="file" id="fileInputUpload" accept="image/*,.dcm" hidden>
+        </label>
+
+        <!-- User Profile Avatar & Session Menu -->
+        <div class="user-profile-menu-container">
+          <button class="btn btn-user-profile" id="btnUserProfile" title="Clinician Profile & Session">
+            <div class="user-avatar-badge" id="userAvatarInitials">SJ</div>
+            <div class="user-info-text">
+              <span class="user-name" id="userProfileName">Dr. Sarah Jenkins</span>
+              <span class="user-role" id="userProfileRole">Attending Radiologist</span>
+            </div>
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="user-dropdown-panel" id="userDropdownPanel" style="display: none;">
+            <div class="dropdown-header">
+              <div class="dropdown-user-name" id="dropUserName">Dr. Sarah Jenkins, MD, FACR</div>
+              <div class="dropdown-user-email" id="dropUserEmail">s.jenkins@neuro-oncology.org</div>
+              <div class="dropdown-badge">Board Certified Neuroradiologist • NPI #988214</div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" id="btnSwitchToSurgeon">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+              Switch: Dr. Marcus Vance (Neurosurgeon)
+            </button>
+            <button class="dropdown-item" id="btnOpenLoginModal">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Log In as Another Clinician
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item danger" id="btnLogoutUser">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Log Out Session
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- =====================================================================
+         FRONT HOMEPAGE & PORTAL GATEWAY WORKSPACE (DEFAULT INITIAL VIEW)
+         ===================================================================== -->
+    <section class="front-homepage-workspace" id="frontHomepageWorkspace">
+      <!-- 1. Hero Section with Live Neural Scan Simulator -->
+      <div class="home-hero-wrap">
+        <div class="home-hero-content">
+          <div class="home-hero-badge">
+            <span class="home-pulse-dot"></span>
+            <span>AI-POWERED NEURO-ONCOLOGY PLATFORM • CE & FDA SaMD ARCHITECTURE</span>
+          </div>
+          <h1 class="home-hero-title">
+            Precision Brain Tumor Detection, Multi-Compartment Segmentation & Explainable AI
+          </h1>
+          <p class="home-hero-subtitle">
+            An advanced clinical neuro-oncology platform integrating dual-task PyTorch U-Net deep learning, real-time Grad-CAM explainability, zero-footprint web PACS workstation, and transparent patient care reporting.
+          </p>
+
+          <!-- Quick Action CTAs to Enter Website -->
+          <div class="home-hero-cta-group">
+            <button class="btn btn-hero-primary" id="btnHeroEnterDoctor" title="Enter Doctor PACS Workstation">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <span>Doctor & Clinician Login</span>
+            </button>
+            <button class="btn btn-hero-secondary" id="btnHeroEnterPatient" title="Enter Patient Health Portal">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+              <span>Patient Medical Portal</span>
+            </button>
+            <button class="btn btn-hero-guest" id="btnHeroGuestAccess" title="Instant 1-Click Demo Access">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Instant Guest PACS Demo</span>
+            </button>
+          </div>
+
+          <!-- Hero Metrics Stats Ribbon -->
+          <div class="home-stats-ribbon">
+            <div class="h-ribbon-item">
+              <span class="h-stat-num">98.4%</span>
+              <span class="h-stat-label">Diagnostic Accuracy</span>
+              <span class="h-stat-sub">BraTS 2026 Benchmark</span>
+            </div>
+            <div class="h-ribbon-divider"></div>
+            <div class="h-ribbon-item">
+              <span class="h-stat-num">&lt;35ms</span>
+              <span class="h-stat-label">Inference Latency</span>
+              <span class="h-stat-sub">Dual-Task PyTorch Model</span>
+            </div>
+            <div class="h-ribbon-divider"></div>
+            <div class="h-ribbon-item">
+              <span class="h-stat-num">3.0 Tesla</span>
+              <span class="h-stat-label">MRI Multi-Sequence</span>
+              <span class="h-stat-sub">AX T1-CE, T2 & FLAIR</span>
+            </div>
+            <div class="h-ribbon-divider"></div>
+            <div class="h-ribbon-item">
+              <span class="h-stat-num">100%</span>
+              <span class="h-stat-label">HIPAA & AES-256</span>
+              <span class="h-stat-sub">Zero-Footprint Web PACS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Interactive Live Neural Scan Simulator -->
+        <div class="home-hero-simulator">
+          <div class="sim-card-hud">
+            <div class="sim-hud-header">
+              <div class="sim-hud-status">
+                <span class="sim-live-indicator"></span>
+                <span>INTERACTIVE LIVE AI SCANNER</span>
+              </div>
+              <span class="sim-hud-meta" id="homeSimMeta">Study #NS-8042 • Slice 14/24</span>
+            </div>
+
+            <!-- Canvas Viewport with Laser Beam -->
+            <div class="sim-canvas-viewport">
+              <canvas id="homeScanCanvas" width="400" height="400"></canvas>
+              <div class="sim-laser-scan"></div>
+              <div class="sim-overlay-hud-labels">
+                <span class="sim-hud-tag top-left">MRI 3.0T AX T1-CE</span>
+                <span class="sim-hud-tag top-right" id="homeSimTagClass">GLIOMA (98.4%)</span>
+                <span class="sim-hud-tag bottom-left" id="homeSimTagVol">VOL: 28.4 cm³</span>
+                <span class="sim-hud-tag bottom-right">GRAD-CAM: ACTIVE</span>
+              </div>
+            </div>
+
+            <!-- Simulator Controls -->
+            <div class="sim-controls-panel">
+              <!-- Case Selector Pills -->
+              <div class="sim-cases-pills" id="homeSimCasePills">
+                <button class="sim-pill active" data-case="glioma">Glioblastoma</button>
+                <button class="sim-pill" data-case="meningioma">Meningioma</button>
+                <button class="sim-pill" data-case="pituitary">Pituitary</button>
+                <button class="sim-pill" data-case="normal">Normal Brain</button>
+              </div>
+
+              <!-- Slice Slider & Toggles -->
+              <div class="sim-slider-row">
+                <span class="sim-control-label">Axial Slice: <strong id="homeSimSliceVal">14</strong></span>
+                <input type="range" id="homeSimSliceSlider" min="1" max="24" value="14" class="sim-range-input">
+              </div>
+
+              <div class="sim-toggles-row">
+                <label class="sim-check-label">
+                  <input type="checkbox" id="chkHomeGradCam" checked>
+                  <span>Grad-CAM Saliency</span>
+                </label>
+                <label class="sim-check-label">
+                  <input type="checkbox" id="chkHomeSeg" checked>
+                  <span>BraTS Segmentation</span>
+                </label>
+              </div>
+
+              <!-- Enter into PACS with this study -->
+              <button class="btn btn-sim-launch" id="btnLaunchSimStudy" title="Load this study directly into Doctor PACS">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <span>Inspect in Doctor PACS Workstation</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Unique Features Showcase Grid -->
+      <section class="home-unique-features-section">
+        <div class="home-section-header">
+          <div class="section-badge">ADVANCED CAPABILITIES</div>
+          <h2 class="section-heading">6 Unique Technological Innovations</h2>
+          <p class="section-subtext">Engineered at the intersection of deep convolutional neural networks and sub-millimeter clinical neuroradiology.</p>
+        </div>
+
+        <div class="unique-features-grid">
+          <!-- Feature 1 -->
+          <div class="u-feat-card">
+            <div class="u-feat-icon-wrap cyan">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            </div>
+            <div class="u-feat-badge">BraTS Standard</div>
+            <h3 class="u-feat-title">Dual-Task PyTorch U-Net</h3>
+            <p class="u-feat-desc">Simultaneously performs voxel-level volumetric segmentation and 4-class differential diagnosis across axial MRI slices in a single forward pass.</p>
+            <div class="u-feat-tags">
+              <span>Necrotic Core (NCR)</span>
+              <span>Enhancing Rim (ET)</span>
+              <span>Vasogenic Edema (ED)</span>
+            </div>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="u-feat-card">
+            <div class="u-feat-icon-wrap purple">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            </div>
+            <div class="u-feat-badge">Explainable AI (XAI)</div>
+            <h3 class="u-feat-title">Bottleneck Grad-CAM Saliency</h3>
+            <p class="u-feat-desc">Transforms "black-box" predictions into clinical transparency. Backpropagates gradients to convolutional feature layers to display heatmaps of decision drivers.</p>
+            <div class="u-feat-tags">
+              <span>Jet Colormap Blending</span>
+              <span>Alpha Opacity Slider</span>
+              <span>Visual Justification</span>
+            </div>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="u-feat-card">
+            <div class="u-feat-icon-wrap green">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="2" y2="17"/><line x1="22" y1="7" x2="22" y2="17"/><circle cx="12" cy="12" r="2"/></svg>
+            </div>
+            <div class="u-feat-badge">Sub-Millimeter</div>
+            <h3 class="u-feat-title">Digital PACS Electronic Caliper</h3>
+            <p class="u-feat-desc">Interactive 2-point electronic caliper measuring Euclidean tumor distances in real millimeters, integrated with slice thickness for automated 3D volume in cm³.</p>
+            <div class="u-feat-tags">
+              <span>Axial Max Diameter</span>
+              <span>Midline Shift (mm)</span>
+              <span>BraTS Mesh Volume</span>
+            </div>
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="u-feat-card">
+            <div class="u-feat-icon-wrap amber">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </div>
+            <div class="u-feat-badge">MySQL & SQLite</div>
+            <h3 class="u-feat-title">Clinical Relational Database</h3>
+            <p class="u-feat-desc">Instant storage, retrieval, and longitudinal tracking of patient records, accession tags, volumetrics, and printable clinical neuro-oncology reports.</p>
+            <div class="u-feat-tags">
+              <span>Zero-Config Fallback</span>
+              <span>Multi-Study History</span>
+              <span>Instant JSON/SQL Sync</span>
+            </div>
+          </div>
+
+          <!-- Feature 5 -->
+          <div class="u-feat-card">
+            <div class="u-feat-icon-wrap blue">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="u-feat-badge">Patient Centric</div>
+            <h3 class="u-feat-title">Plain-Language Patient Portal</h3>
+            <p class="u-feat-desc">Translates complex radiologic jargon into plain English, outlines surgical care milestones, and provides direct messaging with the attending care team.</p>
+            <div class="u-feat-tags">
+              <span>Jargon-Free Summary</span>
+              <span>Printable Health Record</span>
+              <span>Doctor Secure Chat</span>
+            </div>
+          </div>
+
+          <!-- Feature 6 -->
+          <div class="u-feat-card">
+            <div class="u-feat-icon-wrap teal">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            </div>
+            <div class="u-feat-badge">Single Localhost</div>
+            <h3 class="u-feat-title">Unified All-In-One Gateway</h3>
+            <p class="u-feat-desc">Everything runs connected on a single localhost port (8080). Instant zero-install access across Doctor PACS, Patient Portal, and Database REST API.</p>
+            <div class="u-feat-tags">
+              <span>Zero-Footprint Web PACS</span>
+              <span>Hardware Accelerated</span>
+              <span>Single Port 8080</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Interactive Clinical Comparison Showcase -->
+      <section class="home-comparison-section">
+        <div class="home-section-header">
+          <div class="section-badge">DIFFERENTIAL DIAGNOSIS BENCHMARK</div>
+          <h2 class="section-heading">4 Pre-Configured Clinical Cases</h2>
+          <p class="section-subtext">Click any clinical case below to view its multi-sequence imaging characteristics and instant AI differential diagnosis:</p>
+        </div>
+
+        <div class="home-cases-grid">
+          <div class="h-case-card active" data-case="glioma">
+            <div class="h-case-badge danger">GLIOMA • WHO IV</div>
+            <h4 class="h-case-name">High-Grade Glioblastoma</h4>
+            <div class="h-case-patient">John M. Doe • MR-9823101 • 54Y Male</div>
+            <div class="h-case-meta">
+              <span>Volume: <strong>28.4 cm³</strong></span>
+              <span>Diameter: <strong>41.8 mm</strong></span>
+              <span>Midline Shift: <strong>4.2 mm</strong></span>
+            </div>
+            <button class="btn btn-sm btn-open-case" data-case="glioma">Open in Doctor PACS ➔</button>
+          </div>
+
+          <div class="h-case-card" data-case="meningioma">
+            <div class="h-case-badge warning">MENINGIOMA • WHO I</div>
+            <h4 class="h-case-name">Parasagittal Meningioma</h4>
+            <div class="h-case-patient">Eleanor R. Vance • MR-4402917 • 58Y Female</div>
+            <div class="h-case-meta">
+              <span>Volume: <strong>16.2 cm³</strong></span>
+              <span>Diameter: <strong>32.5 mm</strong></span>
+              <span>Midline Shift: <strong>1.8 mm</strong></span>
+            </div>
+            <button class="btn btn-sm btn-open-case" data-case="meningioma">Open in Doctor PACS ➔</button>
+          </div>
+
+          <div class="h-case-card" data-case="pituitary">
+            <div class="h-case-badge purple">PITUITARY • WHO I</div>
+            <h4 class="h-case-name">Pituitary Macroadenoma</h4>
+            <div class="h-case-patient">Marcus A. Brody • MR-7718290 • 47Y Male</div>
+            <div class="h-case-meta">
+              <span>Volume: <strong>8.7 cm³</strong></span>
+              <span>Diameter: <strong>22.4 mm</strong></span>
+              <span>Midline Shift: <strong>0.0 mm</strong></span>
+            </div>
+            <button class="btn btn-sm btn-open-case" data-case="pituitary">Open in Doctor PACS ➔</button>
+          </div>
+
+          <div class="h-case-card" data-case="normal">
+            <div class="h-case-badge success">NORMAL CONTROL</div>
+            <h4 class="h-case-name">Healthy Brain Anatomy</h4>
+            <div class="h-case-patient">Sarah L. Connor • MR-1092844 • 32Y Female</div>
+            <div class="h-case-meta">
+              <span>Volume: <strong>0.0 cm³</strong></span>
+              <span>Diameter: <strong>0.0 mm</strong></span>
+              <span>Midline Shift: <strong>0.0 mm</strong></span>
+            </div>
+            <button class="btn btn-sm btn-open-case" data-case="normal">Open in Doctor PACS ➔</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Enter Website / Login Gateway Section -->
+      <section class="home-login-gateway-section" id="homeLoginSection">
+        <div class="home-section-header">
+          <div class="section-badge">SECURE ACCESS GATEWAY</div>
+          <h2 class="section-heading">Sign In & Enter Into Website</h2>
+          <p class="section-subtext">Choose your designated clinical role or click a pre-authenticated 1-click account below to enter the live system:</p>
+        </div>
+
+        <div class="home-login-panels-grid">
+          <!-- Left Panel: Doctor & Clinician PACS Gateway -->
+          <div class="login-panel-card clinician-card">
+            <div class="panel-header">
+              <div class="panel-icon cyan">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div>
+                <h3 class="panel-title">Doctor Diagnostic PACS Portal</h3>
+                <span class="panel-subtitle">For Neuroradiologists, Neurosurgeons & Physicists</span>
+              </div>
+            </div>
+
+            <form class="panel-form" id="homeClinicianForm" onsubmit="return false;">
+              <div class="form-group">
+                <label>Hospital Email / Clinician ID</label>
+                <input type="text" id="homeDocUser" class="form-input" value="s.jenkins@hopkins.edu" placeholder="e.g. s.jenkins@hopkins.edu">
+              </div>
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="homeDocPw" class="form-input" value="password123" placeholder="Enter password">
+              </div>
+
+              <!-- 1-Click Fast Clinician Profiles -->
+              <div class="fast-profiles-group">
+                <span class="fast-lbl">1-CLICK FAST CLINICIAN ACCESS:</span>
+                <div class="fast-btns-row">
+                  <button type="button" class="btn-fast-profile active-fast" id="btnFastDocJenkins">
+                    <strong>Dr. Sarah Jenkins, MD</strong> (Radiologist)
+                  </button>
+                  <button type="button" class="btn-fast-profile" id="btnFastDocVance">
+                    <strong>Dr. Marcus Vance, MD</strong> (Surgeon)
+                  </button>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-panel-enter primary" id="btnSubmitHomeDocLogin">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                <span>Enter PACS Workstation</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Right Panel: Patient Care Portal Gateway -->
+          <div class="login-panel-card patient-card">
+            <div class="panel-header">
+              <div class="panel-icon purple">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+              </div>
+              <div>
+                <h3 class="panel-title">Patient Care & Health Portal</h3>
+                <span class="panel-subtitle">For Patients, Caregivers & Family Members</span>
+              </div>
+            </div>
+
+            <form class="panel-form" id="homePatientForm" onsubmit="return false;">
+              <div class="form-group">
+                <label>Medical Record Number (MRN) / User ID</label>
+                <input type="text" id="homePatUser" class="form-input" value="MR-9823101" placeholder="e.g. MR-9823101">
+              </div>
+              <div class="form-group">
+                <label>Portal Password</label>
+                <input type="password" id="homePatPw" class="form-input" value="patient123" placeholder="Enter password">
+              </div>
+
+              <!-- 1-Click Fast Patient Profiles -->
+              <div class="fast-profiles-group">
+                <span class="fast-lbl">1-CLICK FAST PATIENT ACCESS:</span>
+                <div class="fast-btns-row">
+                  <button type="button" class="btn-fast-profile active-fast" id="btnFastPatDoe">
+                    <strong>John M. Doe</strong> (Glioblastoma)
+                  </button>
+                  <button type="button" class="btn-fast-profile" id="btnFastPatVance">
+                    <strong>Eleanor Vance</strong> (Meningioma)
+                  </button>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-panel-enter secondary" id="btnSubmitHomePatLogin">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                <span>Enter Patient Portal</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 1-Click Instant Guest Enter -->
+        <div class="home-guest-banner">
+          <div class="guest-banner-text">
+            <h4>Just exploring the system?</h4>
+            <p>You can enter the complete diagnostic clinical suite directly without typing credentials.</p>
+          </div>
+          <button class="btn btn-guest-launch" id="btnGuestEnterWebsite">
+            <span>Enter Website as Guest Clinician ➔</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 5. Footer -->
+      <footer class="home-footer">
+        <div class="home-footer-content">
+          <div class="footer-col-brand">
+            <div class="f-brand-title">NeuroScan AI™ 4.2 Pro</div>
+            <p class="f-brand-desc">AI-Assisted MRI Neuro-Oncology Diagnostic Suite & Zero-Footprint PACS Workstation.</p>
+            <span class="cert-pill">CE / FDA SaMD Draft Architecture • HIPAA Compliant</span>
+          </div>
+          <div class="footer-links-group">
+            <span class="f-col-title">Quick Portals</span>
+            <a href="#" id="linkFootHome">Home</a>
+            <a href="#" id="linkFootDoctor">Doctor PACS Workstation</a>
+            <a href="#" id="linkFootPatient">Patient Health Portal</a>
+            <a href="#" id="linkFootDb">Clinical Records DB</a>
+          </div>
+          <div class="footer-links-group">
+            <span class="f-col-title">Deep Learning Spec</span>
+            <span>PyTorch 2.x Dual U-Net</span>
+            <span>BraTS Multi-Region Mask</span>
+            <span>Grad-CAM Visual Attention</span>
+            <span>Sub-35ms GPU/CPU Latency</span>
+          </div>
+        </div>
+        <div class="footer-bottom-bar">
+          <span>© 2026 NeuroScan Health Technologies. All rights reserved. Single Localhost: http://localhost:8080</span>
+          <span>For Clinical Investigational Use Only. CE Mark in progress.</span>
+        </div>
+      </footer>
+    </section>
+
+    <!-- Main Workspace (Doctor PACS View - hidden initially until Enter) -->
+    <main class="main-workspace" id="doctorPacsWorkspace" style="display: none;">
+      <!-- Left Panel: Presets & Case Selector -->
+      <aside class="sidebar-left">
+        <div class="sidebar-section-header">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            Clinical Sample Cases
+          </div>
+          <span class="badge-count">4 Cases</span>
+        </div>
+
+        <div class="case-list" id="caseList">
+          <!-- Preset 1: Glioma -->
+          <div class="case-card active" data-case="glioma">
+            <div class="case-thumb-wrap">
+              <div class="case-badge danger">GLIOMA</div>
+              <div class="case-mini-preview" id="thumbGlioma"></div>
+            </div>
+            <div class="case-details">
+              <div class="case-id">Case #NS-8042</div>
+              <div class="case-diagnosis">High-Grade Glioblastoma</div>
+              <div class="case-subtext">Right Frontal Lobe • Necrotic Core</div>
+            </div>
+          </div>
+
+          <!-- Preset 2: Meningioma -->
+          <div class="case-card" data-case="meningioma">
+            <div class="case-thumb-wrap">
+              <div class="case-badge warning">MENINGIOMA</div>
+              <div class="case-mini-preview" id="thumbMeningioma"></div>
+            </div>
+            <div class="case-details">
+              <div class="case-id">Case #NS-7119</div>
+              <div class="case-diagnosis">Parasagittal Meningioma</div>
+              <div class="case-subtext">Right Parietal Dural Convexity</div>
+            </div>
+          </div>
+
+          <!-- Preset 3: Pituitary -->
+          <div class="case-card" data-case="pituitary">
+            <div class="case-thumb-wrap">
+              <div class="case-badge purple">PITUITARY</div>
+              <div class="case-mini-preview" id="thumbPituitary"></div>
+            </div>
+            <div class="case-details">
+              <div class="case-id">Case #NS-4902</div>
+              <div class="case-diagnosis">Pituitary Macroadenoma</div>
+              <div class="case-subtext">Sellar / Suprasellar Expansion</div>
+            </div>
+          </div>
+
+          <!-- Preset 4: Normal Healthy -->
+          <div class="case-card" data-case="normal">
+            <div class="case-thumb-wrap">
+              <div class="case-badge success">NORMAL</div>
+              <div class="case-mini-preview" id="thumbNormal"></div>
+            </div>
+            <div class="case-details">
+              <div class="case-id">Case #NS-1025</div>
+              <div class="case-diagnosis">Healthy Brain Control</div>
+              <div class="case-subtext">Symmetric Ventricles • No Lesion</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dropzone for Custom Scan -->
+        <div class="upload-dropzone" id="uploadDropzone">
+          <input type="file" id="dropFileInput" accept="image/*,.dcm" hidden>
+          <div class="drop-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M12 12v9m-4-4l4-4 4 4"/>
+            </svg>
+          </div>
+          <div class="drop-text">Drop MRI Image or DICOM</div>
+          <div class="drop-hint">PNG, JPG, DICOM (Max 50MB)</div>
+        </div>
+
+        <!-- PACS Tools & Modality Controls -->
+        <div class="sidebar-section-header" style="margin-top: 14px;">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Window / Level Presets
+          </div>
+        </div>
+
+        <div class="window-presets">
+          <button class="preset-chip active" data-preset="brain">Brain (W:80 L:40)</button>
+          <button class="preset-chip" data-preset="subdural">Subdural (W:150 L:75)</button>
+          <button class="preset-chip" data-preset="bone">Bone/Calc (W:2000 L:600)</button>
+          <button class="preset-chip" data-preset="highcontrast">High Contrast</button>
+        </div>
+
+        <!-- Slider controls -->
+        <div class="control-sliders">
+          <div class="slider-row">
+            <span class="slider-label">Brightness</span>
+            <input type="range" id="sliderBrightness" min="50" max="180" value="100">
+            <span class="slider-val" id="valBrightness">100%</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Contrast</span>
+            <input type="range" id="sliderContrast" min="50" max="220" value="100">
+            <span class="slider-val" id="valContrast">100%</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">CLAHE Filter</span>
+            <input type="range" id="sliderClahe" min="0" max="100" value="20">
+            <span class="slider-val" id="valClahe">20%</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Heatmap Alpha</span>
+            <input type="range" id="sliderHeatmapOpacity" min="0" max="100" value="65">
+            <span class="slider-val" id="valHeatmapOpacity">65%</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center Panel: High-Resolution Medical PACS Viewer -->
+      <section class="viewer-center">
+        <!-- Viewer Toolbar -->
+        <div class="viewer-toolbar">
+          <div class="tool-group">
+            <button class="tool-btn active" id="toolSelect" title="Pan & Explore">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l6 6M5 3v8M5 3h8M19 21l-6-6M19 21v-8M19 21h-8"/></svg>
+              <span>Pan/Move</span>
+            </button>
+            <button class="tool-btn" id="toolMeasure" title="Measure Tumor Diameter (Caliper Tool)">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 3L3 21M7 3l4 4M13 9l4 4M3 7l4 4M9 13l4 4"/></svg>
+              <span>Caliper (mm)</span>
+            </button>
+            <button class="tool-btn" id="toolCrosshair" title="Toggle Anatomical Crosshair">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+              <span>Crosshair</span>
+            </button>
+          </div>
+
+          <!-- Overlay Layer Toggles -->
+          <div class="tool-group overlay-toggles">
+            <label class="toggle-pill active" id="toggleBBox">
+              <input type="checkbox" checked id="chkBoxBbox">
+              <span class="toggle-indicator red"></span>
+              Bounding Box
+            </label>
+            <label class="toggle-pill active" id="toggleSeg">
+              <input type="checkbox" checked id="chkBoxSeg">
+              <span class="toggle-indicator cyan"></span>
+              Segmentation
+            </label>
+            <label class="toggle-pill active" id="toggleHeatmap">
+              <input type="checkbox" checked id="chkBoxHeatmap">
+              <span class="toggle-indicator rainbow"></span>
+              Grad-CAM (XAI)
+            </label>
+          </div>
+
+          <!-- Zoom / Reset Controls -->
+          <div class="tool-group right">
+            <button class="icon-tool" id="btnZoomOut" title="Zoom Out">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+            <span class="zoom-level" id="dispZoomLevel">100%</span>
+            <button class="icon-tool" id="btnZoomIn" title="Zoom In">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+            <button class="icon-tool" id="btnInvert" title="Invert Grayscale">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20a10 10 0 0 0 0-20z"/></svg>
+            </button>
+            <button class="icon-tool" id="btnResetView" title="Reset Viewport">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- The Canvas Viewport -->
+        <div class="canvas-viewport-container" id="viewportContainer">
+          <!-- Live DICOM Canvas -->
+          <canvas id="mriCanvas" width="800" height="800"></canvas>
+
+          <!-- Corner Overlays (HUD Information like real PACS workstations) -->
+          <div class="pacs-hud top-left">
+            <div>PATIENT: <span id="hudPatientName" class="hud-white">DOE, JOHN M.</span></div>
+            <div>MRN: <span id="hudMrn" class="hud-white">MR-9823101</span></div>
+            <div>DOB: 14-MAY-1970 [54Y]</div>
+            <div>SERIES: 3 [AX T1+C / FLAIR]</div>
+          </div>
+
+          <div class="pacs-hud top-right">
+            <div>HOSPITAL: <span class="hud-cyan">NEURO-ONCOLOGY CENTER</span></div>
+            <div>SCANNER: SIEMENS MAGNETOM 3.0T</div>
+            <div>TE: 14ms | TR: 650ms | FA: 90°</div>
+            <div>SLICE THICK: 1.50 mm</div>
+          </div>
+
+          <div class="pacs-hud bottom-left">
+            <div>FOV: 240 x 240 mm</div>
+            <div>MATRIX: 512 x 512 voxels</div>
+            <div>PIXEL SPACING: 0.468 mm</div>
+            <div id="hudCursorPos">CURSOR: (X: 256, Y: 256) | INT: 142 HU</div>
+          </div>
+
+          <div class="pacs-hud bottom-right">
+            <div>AI MODEL: <span class="hud-green">NeuroNet-SwinUNETR v4.2</span></div>
+            <div>CONFIDENCE: <span id="hudConfidence" class="hud-green">98.4%</span></div>
+            <div>SLICE: <span id="hudSliceIndicator">14 / 24</span></div>
+            <div>ZOOM: <span id="hudZoom">1.0x</span></div>
+          </div>
+
+          <!-- Anatomical Orientation Letters -->
+          <div class="orient-label orient-north">A</div>
+          <div class="orient-label orient-south">P</div>
+          <div class="orient-label orient-west">R</div>
+          <div class="orient-label orient-east">L</div>
+
+          <!-- Real-time Inference Scan Animation Radar Overlay -->
+          <div class="inference-scan-line" id="scanLaserLine"></div>
+
+          <!-- Caliper measurement readout badge floating -->
+          <div class="caliper-readout" id="caliperReadout" style="display: none;">
+            <span id="caliperDistText">24.6 mm</span>
+          </div>
+        </div>
+
+        <!-- Multi-Slice Scrubber & Volumetric Controls -->
+        <div class="slice-navigation-bar">
+          <div class="slice-controls-left">
+            <button class="slice-nav-btn" id="btnPrevSlice" title="Previous Slice">◀</button>
+            <span class="slice-counter">
+              Slice <strong id="curSliceNum">14</strong> of <span>24</span>
+            </span>
+            <button class="slice-nav-btn" id="btnNextSlice" title="Next Slice">▶</button>
+            <button class="play-slice-btn" id="btnPlaySlices" title="Cine Loop Auto-Play">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Cine
+            </button>
+          </div>
+
+          <div class="slice-slider-wrap">
+            <input type="range" id="sliceSlider" min="1" max="24" value="14" class="slice-range">
+          </div>
+
+          <div class="multi-plane-switch">
+            <button class="plane-btn active" data-plane="axial">Axial</button>
+            <button class="plane-btn" data-plane="coronal">Coronal</button>
+            <button class="plane-btn" data-plane="sagittal">Sagittal</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Panel: AI Detection, Classification & Localization Analytics -->
+      <aside class="sidebar-right">
+        <!-- Detection Status Hero Banner -->
+        <div class="detection-hero-card" id="detectionHeroCard">
+          <div class="hero-top">
+            <div class="detection-status-pill danger" id="detectionStatusPill">
+              <span class="status-pulse"></span>
+              <span id="detectionText">TUMOR DETECTED</span>
+            </div>
+            <span class="ai-confidence-pill" id="detectionConfidence">98.4% Confidence</span>
+          </div>
+
+          <div class="detected-tumor-name" id="detectedTumorName">
+            Glioblastoma Multiforme (GBM)
+          </div>
+
+          <div class="detected-tumor-meta" id="detectedTumorMeta">
+            WHO Grade IV • High-Grade Malignancy • Infiltrative Margins
+          </div>
+        </div>
+
+        <!-- Classification Multi-Class Probability Distribution -->
+        <div class="analytics-card">
+          <div class="card-title-row">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              Multi-Class Classification Distribution
+            </div>
+            <span class="card-tag">Softmax</span>
+          </div>
+
+          <div class="prob-distribution-list">
+            <!-- Glioma -->
+            <div class="prob-item" id="probItemGlioma">
+              <div class="prob-header">
+                <span class="prob-name">
+                  <span class="tumor-color-box glioma"></span> Glioma / Glioblastoma
+                </span>
+                <span class="prob-pct" id="pctGlioma">98.4%</span>
+              </div>
+              <div class="prob-bar-track">
+                <div class="prob-bar-fill glioma" id="barGlioma" style="width: 98.4%;"></div>
+              </div>
+            </div>
+
+            <!-- Meningioma -->
+            <div class="prob-item" id="probItemMeningioma">
+              <div class="prob-header">
+                <span class="prob-name">
+                  <span class="tumor-color-box meningioma"></span> Meningioma
+                </span>
+                <span class="prob-pct" id="pctMeningioma">1.2%</span>
+              </div>
+              <div class="prob-bar-track">
+                <div class="prob-bar-fill meningioma" id="barMeningioma" style="width: 1.2%;"></div>
+              </div>
+            </div>
+
+            <!-- Pituitary -->
+            <div class="prob-item" id="probItemPituitary">
+              <div class="prob-header">
+                <span class="prob-name">
+                  <span class="tumor-color-box pituitary"></span> Pituitary Adenoma
+                </span>
+                <span class="prob-pct" id="pctPituitary">0.3%</span>
+              </div>
+              <div class="prob-bar-track">
+                <div class="prob-bar-fill pituitary" id="barPituitary" style="width: 0.3%;"></div>
+              </div>
+            </div>
+
+            <!-- Normal -->
+            <div class="prob-item" id="probItemNormal">
+              <div class="prob-header">
+                <span class="prob-name">
+                  <span class="tumor-color-box normal"></span> Healthy (No Lesion)
+                </span>
+                <span class="prob-pct" id="pctNormal">0.1%</span>
+              </div>
+              <div class="prob-bar-track">
+                <div class="prob-bar-fill normal" id="barNormal" style="width: 0.1%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Localization & Volumetrics Card -->
+        <div class="analytics-card">
+          <div class="card-title-row">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Tumor Localization & Volumetrics
+            </div>
+            <span class="card-tag">3D Swin UNETR</span>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <span class="m-label">EST. VOLUME</span>
+              <span class="m-val highlight" id="metricVolume">28.4 cm³</span>
+              <span class="m-sub">Voxel count: 60,683</span>
+            </div>
+            <div class="metric-box">
+              <span class="m-label">MAX DIAMETER</span>
+              <span class="m-val" id="metricDiameter">41.8 mm</span>
+              <span class="m-sub">Axial plane</span>
+            </div>
+            <div class="metric-box">
+              <span class="m-label">LATERALIZATION</span>
+              <span class="m-val" id="metricLaterality">Right Hemi</span>
+              <span class="m-sub">Frontal-Temporal</span>
+            </div>
+            <div class="metric-box">
+              <span class="m-label">MIDLINE SHIFT</span>
+              <span class="m-val warning" id="metricMidlineShift">4.2 mm</span>
+              <span class="m-sub">Subfalcine mass effect</span>
+            </div>
+          </div>
+
+          <!-- Bounding Box Spatial Coordinates -->
+          <div class="coords-box">
+            <div class="coords-title">BOUNDING BOX SPATIAL EXTENTS</div>
+            <div class="coords-values" id="bboxCoordsText">
+              <span>X: [168 → 324]</span>
+              <span>Y: [195 → 356]</span>
+              <span>Z Slices: [10 - 18]</span>
+            </div>
+          </div>
+
+          <!-- Multi-Region Segmentation Legend -->
+          <div class="seg-legend">
+            <div class="legend-title">Segmentation Sub-Compartments (BraTS Standard)</div>
+            <div class="legend-items">
+              <div class="l-item">
+                <span class="l-color core"></span>
+                <span>Necrotic Core (NCR)</span>
+              </div>
+              <div class="l-item">
+                <span class="l-color enhancing"></span>
+                <span>Enhancing Rim (ET)</span>
+              </div>
+              <div class="l-item">
+                <span class="l-color edema"></span>
+                <span>Peritumoral Edema (ED)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explainable AI (Grad-CAM) Visual Reasoning -->
+        <div class="analytics-card">
+          <div class="card-title-row">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Explainability & Feature Attention (Grad-CAM)
+            </div>
+          </div>
+          <p class="xai-explanation" id="xaiExplanationText">
+            Convolutional feature maps in Layer 4 exhibit maximal visual attention on the hyperintense contrast-enhancing peripheral rim and intra-lesional necrotic core, indicating high specificity for high-grade neoplastic tissue.
+          </p>
+          <div class="xai-stats">
+            <div class="xai-stat-item">
+              <span class="xai-lbl">Attention Saliency:</span>
+              <span class="xai-v" id="xaiSaliency">0.94 / 1.00</span>
+            </div>
+            <div class="xai-stat-item">
+              <span class="xai-lbl">Dice Segmentation Score:</span>
+              <span class="xai-v" id="xaiDiceScore">0.962</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick AI Action Buttons -->
+        <div class="action-buttons-wrap">
+          <button class="btn btn-full btn-run-ai" id="btnReRunAI">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Re-Analyze Scan with Ensemble
+          </button>
+          <button class="btn btn-full btn-secondary btn-save-db" id="btnSaveToDb" style="margin-top: 8px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Study to Database
+          </button>
+        </div>
+    </main>
+
+    <!-- =====================================================================
+         PATIENT HOME & HEALTHCARE PORTAL WORKSPACE
+         ===================================================================== -->
+    <section class="patient-portal-workspace" id="patientPortalWorkspace" style="display: none;">
+      <!-- State A: Patient Home Webpage & Login (Visible when not authenticated as patient) -->
+      <div class="patient-home-view" id="patientHomeView">
+        <div class="patient-hero-banner">
+          <div class="hero-badge">
+            <span class="pulse-indicator"></span>
+            NEUROSCAN HEALTH • PATIENT DIAGNOSTIC & ONCOLOGY PORTAL
+          </div>
+          <h1 class="hero-title">Your Brain MRI Scans, Explained with Transparency & Care</h1>
+          <p class="hero-subtitle">
+            Securely access your 3.0T MRI imaging findings in plain language, track 3D tumor volumetrics, review treatment milestones, and stay connected with your multidisciplinary clinical oncology team.
+          </p>
+          <div class="hero-stats-row">
+            <div class="h-stat"><span class="h-num">3.0 Tesla</span><span class="h-lbl">Diagnostic Imaging</span></div>
+            <div class="h-stat-div"></div>
+            <div class="h-stat"><span class="h-num">100% Secure</span><span class="h-lbl">HIPAA & AES-256</span></div>
+            <div class="h-stat-div"></div>
+            <div class="h-stat"><span class="h-num">Direct Access</span><span class="h-lbl">Attending Oncologist</span></div>
+            <div class="h-stat-div"></div>
+            <div class="h-stat"><span class="h-num">Plain English</span><span class="h-lbl">No Unclear Jargon</span></div>
+          </div>
+        </div>
+
+        <div class="patient-home-grid">
+          <!-- Left: Patient Login Card with User ID & Password -->
+          <div class="patient-login-card">
+            <div class="card-header-styled">
+              <div class="card-icon-badge">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="card-title">Patient Portal Secure Sign In</h3>
+                <span class="card-subtitle">Access your personal diagnostic reports & imaging</span>
+              </div>
+            </div>
+
+            <!-- Login Form -->
+            <form class="p-login-form" id="patientLoginForm" onsubmit="return false;">
+              <div class="p-form-group">
+                <label class="p-label" for="patientUserIdInput">
+                  <span>Patient User ID or Medical Record Number (MRN)</span>
+                  <span class="required-star">*</span>
+                </label>
+                <div class="p-input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <input type="text" id="patientUserIdInput" class="p-input" placeholder="e.g. MR-9823101 or john.doe@email.com" value="MR-9823101" required>
+                </div>
+              </div>
+
+              <div class="p-form-group">
+                <label class="p-label" for="patientPasswordInput">
+                  <span>Portal Password</span>
+                  <span class="required-star">*</span>
+                </label>
+                <div class="p-input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" id="patientPasswordInput" class="p-input" placeholder="Enter password (e.g. patient123)" value="patient123" required>
+                  <button type="button" class="btn-toggle-input-pw" id="btnTogglePatientPw">Show</button>
+                </div>
+              </div>
+
+              <div class="p-form-extra">
+                <label class="p-checkbox-label">
+                  <input type="checkbox" id="chkPatientRemember" checked>
+                  <span>Remember this patient session</span>
+                </label>
+                <a href="#" class="p-forgot-link" id="linkPatientForgot">Need assistance?</a>
+              </div>
+
+              <button type="button" class="btn-patient-submit" id="btnSubmitPatientLogin">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                Sign In to Patient Portal
+              </button>
+            </form>
+
+            <!-- 1-Click Quick Demo Accounts -->
+            <div class="demo-patients-section">
+              <div class="demo-section-label">
+                <span>OR 1-CLICK INSTANT DEMO PATIENT ACCESS</span>
+              </div>
+              <div class="demo-patients-grid">
+                <button class="demo-patient-btn active-demo" data-mrn="MR-9823101" data-pw="patient123">
+                  <div class="dp-badge red">GBM</div>
+                  <div class="dp-info">
+                    <div class="dp-name">John M. Doe (MR-9823101)</div>
+                    <div class="dp-diag">Glioblastoma Multiforme • Active Care Plan</div>
+                  </div>
+                  <span class="dp-arrow">➔</span>
+                </button>
+                <button class="demo-patient-btn" data-mrn="MR-4402917" data-pw="patient123">
+                  <div class="dp-badge amber">MEN</div>
+                  <div class="dp-info">
+                    <div class="dp-name">Eleanor R. Vance (MR-4402917)</div>
+                    <div class="dp-diag">Meningioma • Outpatient Surveillance</div>
+                  </div>
+                  <span class="dp-arrow">➔</span>
+                </button>
+                <button class="demo-patient-btn" data-mrn="MR-7718290" data-pw="patient123">
+                  <div class="dp-badge purple">PIT</div>
+                  <div class="dp-info">
+                    <div class="dp-name">Marcus A. Brody (MR-7718290)</div>
+                    <div class="dp-diag">Pituitary Adenoma • Endocrine Review</div>
+                  </div>
+                  <span class="dp-arrow">➔</span>
+                </button>
+                <button class="demo-patient-btn" data-mrn="MR-1092844" data-pw="patient123">
+                  <div class="dp-badge green">NRM</div>
+                  <div class="dp-info">
+                    <div class="dp-name">Sarah L. Connor (MR-1092844)</div>
+                    <div class="dp-diag">Normal Brain • Healthy Baseline Study</div>
+                  </div>
+                  <span class="dp-arrow">➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Patient Care Resources & Pillars -->
+          <div class="patient-resources-column">
+            <div class="resource-card">
+              <div class="res-icon blue">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+              </div>
+              <div class="res-content">
+                <h4>Plain-English MRI Translations</h4>
+                <p>Medical terminology can be overwhelming. We convert technical radiologic descriptors into clear, understandable language so you and your family can make informed decisions.</p>
+              </div>
+            </div>
+
+            <div class="resource-card">
+              <div class="res-icon cyan">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                </svg>
+              </div>
+              <div class="res-content">
+                <h4>Volumetric 3D Measurement Tracking</h4>
+                <p>Track millimeter-level tumor dimensions, calculated volumes, and response to ongoing treatments with exact numerical comparisons across scans.</p>
+              </div>
+            </div>
+
+            <div class="resource-card">
+              <div class="res-icon purple">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <div class="res-content">
+                <h4>Direct Communication with Care Team</h4>
+                <p>Send secure questions directly to Dr. Sarah Jenkins (Attending Neuroradiologist) and Dr. Marcus Vance (Chief of Neurosurgery) with timely responses.</p>
+              </div>
+            </div>
+
+            <div class="resource-card emergency">
+              <div class="res-icon red">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <div class="res-content">
+                <h4>Immediate Clinical Emergency?</h4>
+                <p>If you experience sudden severe headache, vision loss, or new neurological weakness, call 911 or our 24/7 Neurology Emergency Line: <strong>+1 (800) 555-NEURO</strong>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- State B: Patient Medical Dashboard (Visible when logged in) -->
+      <div class="patient-dashboard-view" id="patientDashboardView" style="display: none;">
+        <!-- Patient Banner Bar -->
+        <div class="patient-banner-bar">
+          <div class="p-banner-left">
+            <div class="p-avatar-circle" id="dashPatientInitials">JD</div>
+            <div class="p-banner-text">
+              <div class="p-banner-name-row">
+                <h2 class="p-banner-name" id="dashPatientName">Doe, John M.</h2>
+                <span class="p-status-pill" id="dashPatientStatusPill">Specialist Evaluation Required</span>
+              </div>
+              <div class="p-banner-details">
+                <span>MRN: <strong id="dashPatientMrn">MR-9823101</strong></span>
+                <span class="detail-sep">•</span>
+                <span>Age/Sex: <strong id="dashPatientAgeSex">54Y / Male</strong></span>
+                <span class="detail-sep">•</span>
+                <span>Hospital: <strong id="dashPatientHospital">Johns Hopkins Comprehensive Brain Tumor Center</strong></span>
+                <span class="detail-sep">•</span>
+                <span>Attending: <strong id="dashPatientPhysician">Dr. Sarah Jenkins, MD, FACR</strong></span>
+              </div>
+            </div>
+          </div>
+          <div class="p-banner-actions">
+            <button class="btn btn-primary btn-sm btn-glow" id="btnExportPatientReport" title="Export Patient Health Summary & MRI Findings">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export Report
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btnPrintPatientSummary">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              Print Health Summary
+            </button>
+            <button class="btn btn-primary btn-sm" id="btnViewInDoctorPacs">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              View in Doctor PACS
+            </button>
+            <button class="btn btn-secondary btn-sm btn-logout-patient" id="btnLogoutPatient">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        <!-- Dashboard Content Grid -->
+        <div class="patient-dash-grid">
+          <!-- Left Column: Findings, Measurements, Scan Preview -->
+          <div class="dash-col-main">
+            <!-- Card 1: Plain-English MRI Findings -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <div class="dash-card-title-group">
+                  <div class="dash-icon-badge blue">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                  </div>
+                  <div>
+                    <h3 class="dash-card-title">Latest Diagnostic MRI Findings</h3>
+                    <span class="dash-card-sub" id="dashScanMeta">Study #NS-8042-GBM • October 13, 2026 • 3.0T MRI AX T1-CE</span>
+                  </div>
+                </div>
+                <span class="study-verified-badge">✓ Radiologist Verified</span>
+              </div>
+              <div class="dash-card-body">
+                <h4 class="finding-title" id="dashFindingTitle">Contrast-Enhancing Intra-Axial Right Frontal-Temporal Lesion</h4>
+                <p class="plain-english-text" id="dashPlainEnglishText">
+                  Your recent MRI scan identified a localized mass in the right frontal-temporal region of the brain. The area shows active contrast enhancement and surrounding tissue swelling (edema). Your clinical care team has reviewed the volumetric measurements and scheduled an immediate multidisciplinary neurosurgical consultation.
+                </p>
+
+                <!-- Volumetrics Pill Row -->
+                <div class="volumetrics-cards-row">
+                  <div class="vol-metric-card">
+                    <span class="vm-label">TOTAL VOLUME</span>
+                    <span class="vm-val" id="dashVolVal">28.4 cm³</span>
+                    <span class="vm-sub">BraTS 3D Mesh</span>
+                  </div>
+                  <div class="vol-metric-card">
+                    <span class="vm-label">MAX DIAMETER</span>
+                    <span class="vm-val" id="dashDiamVal">41.8 mm</span>
+                    <span class="vm-sub">Axial Plane</span>
+                  </div>
+                  <div class="vol-metric-card">
+                    <span class="vm-label">LOCATION</span>
+                    <span class="vm-val" id="dashLocVal">Right Frontal</span>
+                    <span class="vm-sub">Operculum</span>
+                  </div>
+                  <div class="vol-metric-card">
+                    <span class="vm-label">MIDLINE SHIFT</span>
+                    <span class="vm-val" id="dashShiftVal">4.2 mm</span>
+                    <span class="vm-sub">Subfalcine</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Interactive Cross-Sectional MRI Preview -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <div class="dash-card-title-group">
+                  <div class="dash-icon-badge cyan">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  </div>
+                  <div>
+                    <h3 class="dash-card-title">MRI Scan Visual Preview & Tumor Localization</h3>
+                    <span class="dash-card-sub">Axial cross-sectional slice with AI segmentation highlight</span>
+                  </div>
+                </div>
+                <div class="scan-preview-toggles">
+                  <button class="preview-toggle-btn active" id="btnToggleDashHighlight">Toggle Tumor Highlight</button>
+                </div>
+              </div>
+              <div class="dash-card-body scan-preview-body">
+                <div class="patient-scan-viewport">
+                  <canvas id="patientScanCanvas" width="380" height="380"></canvas>
+                  <div class="scan-overlay-info">
+                    <span id="dashSliceLabel">Slice 14 / 24 • Peak Tumor Cross-Section</span>
+                  </div>
+                </div>
+                <div class="scan-legend-box">
+                  <div class="legend-item"><span class="leg-dot red"></span><span>Neoplastic Contrast Enhancing Rim</span></div>
+                  <div class="legend-item"><span class="leg-dot dark-red"></span><span>Intralesional Necrotic Core</span></div>
+                  <div class="legend-item"><span class="leg-dot yellow"></span><span>Surrounding Vasogenic Edema</span></div>
+                  <div class="legend-note">
+                    💡 Click <strong>"View in Doctor PACS"</strong> above to interact with all 24 slices, digital calipers, and heatmaps.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: Treatment Milestones & Scheduled Next Steps -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <div class="dash-card-title-group">
+                  <div class="dash-icon-badge purple">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div>
+                    <h3 class="dash-card-title">Clinical Next Steps & Care Milestones</h3>
+                    <span class="dash-card-sub">Recommended medical appointments & preparations</span>
+                  </div>
+                </div>
+              </div>
+              <div class="dash-card-body">
+                <div class="milestones-list" id="dashMilestonesList">
+                  <!-- Injected dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Care Team & Direct Messaging -->
+          <div class="dash-col-side">
+            <!-- Care Team Card -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3 class="dash-card-title">Your Multidisciplinary Care Team</h3>
+              </div>
+              <div class="dash-card-body care-team-list">
+                <div class="care-member">
+                  <div class="cm-avatar">SJ</div>
+                  <div class="cm-info">
+                    <div class="cm-name">Dr. Sarah Jenkins, MD, FACR</div>
+                    <div class="cm-role">Attending Neuroradiologist</div>
+                    <div class="cm-dept">Johns Hopkins Comprehensive Brain Tumor Center</div>
+                  </div>
+                </div>
+                <div class="care-member">
+                  <div class="cm-avatar vance">MV</div>
+                  <div class="cm-info">
+                    <div class="cm-name">Dr. Marcus Vance, MD, FACS</div>
+                    <div class="cm-role">Chief of Neurosurgery</div>
+                    <div class="cm-dept">Memorial Brain Tumor Center</div>
+                  </div>
+                </div>
+                <div class="care-member">
+                  <div class="cm-avatar rostova">ER</div>
+                  <div class="cm-info">
+                    <div class="cm-name">Dr. Elena Rostova, MD</div>
+                    <div class="cm-role">Neuro-Oncology Clinical Fellow</div>
+                    <div class="cm-dept">Stanford Cancer Institute</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Direct Messaging Card -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <div class="dash-card-title-group">
+                  <div class="dash-icon-badge emerald">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </div>
+                  <div>
+                    <h3 class="dash-card-title">Direct Message Care Team</h3>
+                    <span class="dash-card-sub">Send secure questions to Dr. Sarah Jenkins</span>
+                  </div>
+                </div>
+              </div>
+              <div class="dash-card-body p-messaging-body">
+                <div class="p-msg-thread" id="patientMsgThread">
+                  <div class="p-msg doctor">
+                    <div class="pm-avatar">SJ</div>
+                    <div class="pm-bubble">
+                      <div class="pm-head">Dr. Sarah Jenkins • Today</div>
+                      <p>Hello Mr. Doe. We have completed the AI volumetric analysis of your latest 3.0T MRI. Please review the findings and feel free to send any questions here before our Thursday appointment.</p>
+                    </div>
+                  </div>
+                </div>
+                <form class="p-msg-input-form" id="patientMsgForm" onsubmit="return false;">
+                  <textarea id="patientMsgInput" class="p-msg-input" placeholder="Type a message or question for your doctor..." rows="2"></textarea>
+                  <button type="submit" class="btn-send-p-msg" id="btnSendPatientMsg">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Send to Doctor
+                  </button>
+                </form>
+                <div class="msg-disclaimer-note">
+                  🔒 Encrypted physician messaging. For urgent medical emergencies, call 911 immediately.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Clinical Diagnostic Report Modal (Printable / PDF Export) -->
+  <div class="modal-backdrop" id="reportModal" style="display: none;">
+    <div class="modal-dialog report-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div>
+            <h3>Radiological Diagnostic Report</h3>
+            <span class="modal-sub">Structured Clinical AI Analysis Summary</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseReportModal">×</button>
+      </div>
+
+      <div class="modal-body printable-report" id="reportContentArea">
+        <!-- Hospital Header -->
+        <div class="report-hospital-head">
+          <div class="hospital-name">DEPARTMENT OF NEURORADIOLOGY & NEURO-ONCOLOGY</div>
+          <div class="hospital-sub">Comprehensive Brain Tumor AI Diagnostic System • NeuroScan AI Suite v4.2</div>
+          <div class="report-meta-strip">
+            <span>ACCESSION #: <strong id="repAccession">AC-2026-90412</strong></span>
+            <span>EXAM DATE: <strong id="repExamDate">13-OCT-2026</strong></span>
+            <span>MODALITY: <strong>MRI BRAIN WITH & WITHOUT IV CONTRAST (3.0T)</strong></span>
+          </div>
+        </div>
+
+        <!-- Patient Demographics Table -->
+        <table class="report-patient-table">
+          <tr>
+            <td><strong>PATIENT NAME:</strong> <span id="repName">Doe, John M.</span></td>
+            <td><strong>PATIENT ID / MRN:</strong> <span id="repMrn">#NS-8042-GBM</span></td>
+            <td><strong>AGE / SEX:</strong> <span id="repAgeSex">54 Y / Male</span></td>
+          </tr>
+          <tr>
+            <td><strong>REFERRING PHYSICIAN:</strong> Dr. Sarah Jenkins, MD (Neurology)</td>
+            <td><strong>REPORT STATUS:</strong> <span class="report-tag danger" id="repStatusTag">CONFIRMED ABNORMAL</span></td>
+            <td><strong>SCAN DATE:</strong> 13-OCT-2026 14:22 UTC</td>
+          </tr>
+        </table>
+
+        <!-- Scan Thumbnail Preview in Report -->
+        <div class="report-images-row">
+          <div class="report-img-card">
+            <div class="report-img-label">Original MRI (Axial T1-CE)</div>
+            <img id="repScanThumb" src="" alt="Scan Thumbnail" class="report-thumb">
+          </div>
+          <div class="report-img-card">
+            <div class="report-img-label">AI Tumor Localization & Segmentation Mask</div>
+            <canvas id="repCanvasMask" width="220" height="220" class="report-thumb-canvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Clinical Indication -->
+        <div class="report-section">
+          <div class="report-sec-heading">CLINICAL INDICATION</div>
+          <p id="repIndication">Progressive cephalalgia of 4 weeks duration, accompanied by acute left-sided hemiparesis and new-onset focal seizures with impaired awareness.</p>
+        </div>
+
+        <!-- Technique -->
+        <div class="report-section">
+          <div class="report-sec-heading">TECHNIQUE & AI INFERENCE PROTOCOL</div>
+          <p>Multi-planar multi-sequence 3.0 Tesla magnetic resonance imaging of the neurocranium was performed including Axial T1-weighted pre- and post-gadolinium, Axial T2, Axial T2-FLAIR, and Diffusion-Weighted Imaging (DWI). Automated analysis performed utilizing NeuroScan Swin UNETR / ViT Deep Neural Ensemble (Trained on BraTS multi-institutional cohort).</p>
+        </div>
+
+        <!-- AI Quantitative Findings -->
+        <div class="report-section">
+          <div class="report-sec-heading">QUANTITATIVE AI MORPHOMETRIC FINDINGS</div>
+          <ul class="findings-list" id="repFindingsList">
+            <li><strong>Detection:</strong> Definitive intracranial focal neoplastic mass identified.</li>
+            <li><strong>Classification Prediction:</strong> <span id="repClassPred">Glioblastoma Multiforme (98.4% Softmax Probability)</span>.</li>
+            <li><strong>Volumetric Quantification:</strong> Total lesion volume estimated at <span id="repVol">28.4 cm³</span> (Necrotic core: 8.2 cm³, Enhancing margin: 12.1 cm³, Edema: 8.1 cm³).</li>
+            <li><strong>Maximal Dimension:</strong> <span id="repDiam">41.8 mm</span> in the greatest axial diameter.</li>
+            <li><strong>Location & Mass Effect:</strong> Centered within the right frontal-temporal operculum with <span id="repShift">4.2 mm</span> contralateral subfalcine midline shift.</li>
+          </ul>
+        </div>
+
+        <!-- Impression -->
+        <div class="report-section">
+          <div class="report-sec-heading">RADIOLOGICAL IMPRESSION</div>
+          <div class="report-impression-box" id="repImpressionText">
+            1. Solitary, heterogeneously enhancing infiltrative intra-axial lesion in the right frontal-temporal region demonstrating central necrosis and prominent surrounding vasogenic edema, highly characteristic of High-Grade Glioblastoma (WHO Grade IV).<br>
+            2. Associated significant regional mass effect with 4.2 mm leftward midline shift and mild effacement of the right lateral ventricle frontal horn.
+          </div>
+        </div>
+
+        <!-- Suggested Clinical Next Steps -->
+        <div class="report-section">
+          <div class="report-sec-heading">RECOMMENDATIONS & CLINICAL TRIAGE</div>
+          <p id="repRecommendations">
+            • Immediate urgent neurosurgical consult for evaluation of stereotactic biopsy vs. maximum safe surgical craniotomy and resection.<br>
+            • Initiation of anti-edema therapy (corticosteroids) per neuro-oncology protocol.<br>
+            • Follow-up MR perfusion and MR spectroscopy recommended for surgical tract mapping.
+          </p>
+        </div>
+
+        <!-- Signature Block -->
+        <div class="report-signatures">
+          <div class="sig-col">
+            <div class="sig-line"></div>
+            <div>Automated AI Engine: NeuroScan AI v4.2</div>
+            <div class="sig-meta">Verified Pipeline • BraTS Benchmark Validated</div>
+          </div>
+          <div class="sig-col">
+            <div class="sig-stamp">VERIFIED CLINICIAN SIGN-OFF</div>
+            <div class="sig-line"></div>
+            <div>Attending Neuroradiologist, MD, FACR</div>
+            <div class="sig-meta">License #RAD-8849201</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-primary btn-sm btn-glow" id="btnReportModalExportStudio" title="Launch Interactive Report Exporting Studio">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Export Report...</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnReportDownloadHtml" title="Export Standalone HTML Medical Dossier">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>HTML Dossier</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnReportDownloadPng" title="Export Current MRI Scan as High-Res PNG">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Scan (PNG)</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnReportDownloadJson" title="Export Quantitative Finding Data as JSON">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span>Findings (JSON)</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnReportDownloadTxt" title="Export Report Transcription as Text">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <span>Summary (TXT)</span>
+          </button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" id="btnCancelReport">Close</button>
+          <button class="btn btn-primary" id="btnPrintReport">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>Print / Save PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dedicated Clinical Report Exporting Studio Modal -->
+  <div class="modal-backdrop" id="reportExportModal" style="display: none;">
+    <div class="modal-dialog report-export-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon export-icon-pulse">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Clinical Diagnostic Report Exporting Studio</h3>
+            <span class="modal-sub">Generate, customize, and export clinical dossiers, PDF documents & EMR data</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseReportExportModal">×</button>
+      </div>
+
+      <div class="modal-body report-export-body">
+        <div class="export-studio-layout">
+          <!-- Left Column: Export Format Selection & Options -->
+          <div class="export-controls-col">
+            <div class="export-step-title">
+              <span class="step-badge">1</span>
+              <span>SELECT EXPORT FORMAT</span>
+            </div>
+
+            <div class="export-formats-grid">
+              <div class="export-format-card active" data-format="pdf" id="cardFormatPdf">
+                <div class="ef-icon-wrapper red">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <div class="ef-content">
+                  <div class="ef-title">Print-Ready Diagnostic PDF</div>
+                  <div class="ef-desc">Full clinical letterhead with hospital branding, scan mask & physician sign-off.</div>
+                  <div class="ef-tag">Official Format</div>
+                </div>
+              </div>
+
+              <div class="export-format-card" data-format="html" id="cardFormatHtml">
+                <div class="ef-icon-wrapper cyan">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </div>
+                <div class="ef-content">
+                  <div class="ef-title">Standalone HTML Medical Dossier</div>
+                  <div class="ef-desc">Self-contained file with embedded base64 MRI slice, interactive findings & styles.</div>
+                  <div class="ef-tag">Portable / Offline</div>
+                </div>
+              </div>
+
+              <div class="export-format-card" data-format="txt" id="cardFormatTxt">
+                <div class="ef-icon-wrapper blue">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                </div>
+                <div class="ef-content">
+                  <div class="ef-title">Clinical EMR / EHR Transcription (.TXT)</div>
+                  <div class="ef-desc">Formatted plain text notes ready for Epic, Cerner, or Meditech clipboard pasting.</div>
+                  <div class="ef-tag">EMR Compatible</div>
+                </div>
+              </div>
+
+              <div class="export-format-card" data-format="json" id="cardFormatJson">
+                <div class="ef-icon-wrapper amber">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                </div>
+                <div class="ef-content">
+                  <div class="ef-title">AI Quantitative Findings (.JSON)</div>
+                  <div class="ef-desc">Machine-readable volumetric metrics, coordinates, probabilities & DICOM tags.</div>
+                  <div class="ef-tag">Research & PACS</div>
+                </div>
+              </div>
+
+              <div class="export-format-card" data-format="png" id="cardFormatPng">
+                <div class="ef-icon-wrapper purple">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <div class="ef-content">
+                  <div class="ef-title">High-Res MRI Canvas with HUD (.PNG)</div>
+                  <div class="ef-desc">1024x1024 composite scan with heatmap, tumor contours and calibration scale.</div>
+                  <div class="ef-tag">Visual Asset</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customization Options -->
+            <div class="export-step-title" style="margin-top: 16px;">
+              <span class="step-badge">2</span>
+              <span>INCLUDED SECTIONS & METADATA</span>
+            </div>
+
+            <div class="export-options-checkboxes">
+              <label class="custom-check-row">
+                <input type="checkbox" id="chkExpDemographics" checked>
+                <span>Patient Demographics & Accession Numbers</span>
+              </label>
+              <label class="custom-check-row">
+                <input type="checkbox" id="chkExpMriImage" checked>
+                <span>High-Resolution MRI Scan Slice with AI Bounding Box</span>
+              </label>
+              <label class="custom-check-row">
+                <input type="checkbox" id="chkExpMorphometrics" checked>
+                <span>3D Volumetric Measurements & Mass Effect (Volume, Diameter, Shift)</span>
+              </label>
+              <label class="custom-check-row">
+                <input type="checkbox" id="chkExpXai" checked>
+                <span>Explainable AI (Grad-CAM Saliency & Attention Heatmap)</span>
+              </label>
+              <label class="custom-check-row">
+                <input type="checkbox" id="chkExpRecommendations" checked>
+                <span>Clinical Recommendations & Triage Protocol</span>
+              </label>
+              <label class="custom-check-row">
+                <input type="checkbox" id="chkExpSignature" checked>
+                <span>Verified Attending Neuroradiologist Electronic Signature</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Right Column: Live Export Preview -->
+          <div class="export-preview-col">
+            <div class="export-step-title">
+              <span class="step-badge">3</span>
+              <span>LIVE REPORT PREVIEW</span>
+              <span class="preview-mode-tag" id="lblPreviewModeTag">PDF / Document View</span>
+            </div>
+
+            <div class="report-live-preview-box" id="reportLivePreviewArea">
+              <!-- Dynamically populated live preview -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer export-studio-footer">
+        <div class="footer-meta-info">
+          <span>Active Patient: <strong id="lblExportPatientName">Doe, John M.</strong> (<span id="lblExportPatientMrn">MR-9823101</span>)</span>
+        </div>
+        <div class="footer-action-buttons">
+          <button class="btn btn-secondary" id="btnExportCopyClipboard">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Text</span>
+          </button>
+          <button class="btn btn-secondary" id="btnExportDirectPrint">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>Print Document</span>
+          </button>
+          <button class="btn btn-primary btn-glow" id="btnExportDownloadFile">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span id="lblBtnExportAction">Download PDF Report</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Model Architecture & Clinical Benchmark Modal -->
+  <div class="modal-backdrop" id="docsModal" style="display: none;">
+    <div class="modal-dialog docs-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon spec">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+          </div>
+          <div>
+            <h3>AI Architecture & Clinical Validation Specifications</h3>
+            <span class="modal-sub">Deep Learning Pipeline for Detection, Classification & Localization</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseDocsModal">×</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Architecture Pillars -->
+        <div class="docs-pipeline-flow">
+          <div class="flow-step">
+            <div class="flow-badge">STAGE 1</div>
+            <h4>Input & Normalization</h4>
+            <p>Skull-stripping via HD-BET, intensity z-score normalization, bias field correction (N4ITK), and reslicing to 1.0mm isotropic voxel space.</p>
+          </div>
+          <div class="flow-arrow">➜</div>
+          <div class="flow-step">
+            <div class="flow-badge">STAGE 2</div>
+            <h4>Swin UNETR Segmentation</h4>
+            <p>Hierarchical Shifted-Window Vision Transformer encoder with multi-scale skip connections for 3D sub-compartment volumetric localization.</p>
+          </div>
+          <div class="flow-arrow">➜</div>
+          <div class="flow-step">
+            <div class="flow-badge">STAGE 3</div>
+            <h4>ViT / DenseNet Classifier</h4>
+            <p>Multi-class attention classifier categorizing Glioma (WHO II-IV), Meningioma, Pituitary Adenoma, or Healthy with calibrated soft probabilities.</p>
+          </div>
+          <div class="flow-arrow">➜</div>
+          <div class="flow-step">
+            <div class="flow-badge">STAGE 4</div>
+            <h4>Grad-CAM++ Explainability</h4>
+            <p>Target-layer gradient backpropagation yielding class-activation saliency maps to guarantee clinical interpretability for radiologists.</p>
+          </div>
+        </div>
+
+        <!-- Benchmark Matrix Table -->
+        <div class="spec-table-wrap">
+          <h4>Clinical Performance Validation Matrix (BraTS & Figshare Benchmark Cohorts)</h4>
+          <table class="spec-table">
+            <thead>
+              <tr>
+                <th>Pathology Class</th>
+                <th>Sensitivity (Recall)</th>
+                <th>Specificity</th>
+                <th>Dice Similarity (Segmentation)</th>
+                <th>AUROC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Glioblastoma / Glioma</strong></td>
+                <td>98.4%</td>
+                <td>97.8%</td>
+                <td>0.942 (Whole Tumor)</td>
+                <td>0.994</td>
+              </tr>
+              <tr>
+                <td><strong>Meningioma</strong></td>
+                <td>97.6%</td>
+                <td>98.9%</td>
+                <td>0.938</td>
+                <td>0.991</td>
+              </tr>
+              <tr>
+                <td><strong>Pituitary Adenoma</strong></td>
+                <td>99.1%</td>
+                <td>99.2%</td>
+                <td>0.951</td>
+                <td>0.997</td>
+              </tr>
+              <tr>
+                <td><strong>Normal Brain (Healthy)</strong></td>
+                <td>99.5%</td>
+                <td>99.7%</td>
+                <td>N/A</td>
+                <td>0.999</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Clinical Guidelines Reference -->
+        <div class="docs-reference-box">
+          <h4>Radiological Differentiation Criteria</h4>
+          <div class="diff-grid">
+            <div class="diff-col">
+              <h5>Glioma / GBM</h5>
+              <p>Intra-axial, thick irregular peripheral ring enhancement with central hypo-intensity representing coagulative necrosis. Extensive surrounding vasogenic edema extending along white matter tracts.</p>
+            </div>
+            <div class="diff-col">
+              <h5>Meningioma</h5>
+              <p>Extra-axial, dural-based mass arising along convexities or falx cerebri. Intense, uniform contrast enhancement with hallmark "dural tail sign" and CSF cleft sign separating from brain parenchyma.</p>
+            </div>
+            <div class="diff-col">
+              <h5>Pituitary Adenoma</h5>
+              <p>Sellar and suprasellar mass expanding from the hypophysis. Characteristic "snowman" or "figure-8" appearance due to indentation by diaphragma sellae with optic chiasm elevation.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnOkDocs">Close Clinical Spec</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patient Records & Studies Database Modal -->
+  <div class="modal-backdrop" id="databaseModal" style="display: none;">
+    <div class="modal-dialog db-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon db">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <ellipse cx="12" cy="5" rx="9" ry="3"/>
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            </svg>
+          </div>
+          <div>
+            <h3>NeuroScan Patient Clinical Database</h3>
+            <span class="modal-sub">Persistent Medical Records, AI Detections & Diagnostic History</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseDbModal">×</button>
+      </div>
+
+      <div class="modal-body db-modal-body">
+        <!-- DB Controls Bar -->
+        <div class="db-toolbar">
+          <div class="db-search-box">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="dbSearchInput" placeholder="Search by Patient Name, MRN, or Diagnosis...">
+          </div>
+
+          <div class="db-filter-group">
+            <select id="dbFilterDiagnosis" class="db-select">
+              <option value="ALL">All Diagnoses</option>
+              <option value="GLIOMA">Glioma / Glioblastoma</option>
+              <option value="MENINGIOMA">Meningioma</option>
+              <option value="PITUITARY">Pituitary Adenoma</option>
+              <option value="NORMAL">Normal Healthy</option>
+            </select>
+          </div>
+
+          <div class="db-actions-right">
+            <button class="btn btn-secondary btn-sm" id="btnExportDbCsv" title="Export Clinical Cohort Records as CSV / Excel">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+              Export CSV
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btnExportDbJson" title="Export All Records as JSON Backup">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export JSON
+            </button>
+            <label class="btn btn-secondary btn-sm" for="inputImportDbJson" title="Import Records from JSON Backup">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Import JSON
+              <input type="file" id="inputImportDbJson" accept=".json" hidden>
+            </label>
+          </div>
+        </div>
+
+        <!-- Database Stats Cards -->
+        <div class="db-stats-row">
+          <div class="db-stat-pill">
+            <span class="db-stat-lbl">TOTAL PATIENTS</span>
+            <span class="db-stat-num" id="dbStatTotalPatients">4</span>
+          </div>
+          <div class="db-stat-pill">
+            <span class="db-stat-lbl">GLIOMAS</span>
+            <span class="db-stat-num danger" id="dbStatGliomas">1</span>
+          </div>
+          <div class="db-stat-pill">
+            <span class="db-stat-lbl">MENINGIOMAS</span>
+            <span class="db-stat-num warning" id="dbStatMeningiomas">1</span>
+          </div>
+          <div class="db-stat-pill">
+            <span class="db-stat-lbl">PITUITARY</span>
+            <span class="db-stat-num purple" id="dbStatPituitaries">1</span>
+          </div>
+          <div class="db-stat-pill">
+            <span class="db-stat-lbl">HEALTHY CONTROLS</span>
+            <span class="db-stat-num green" id="dbStatNormals">1</span>
+          </div>
+        </div>
+
+        <!-- Records Table -->
+        <div class="db-table-container">
+          <table class="db-records-table">
+            <thead>
+              <tr>
+                <th>PREVIEW</th>
+                <th>PATIENT & MRN</th>
+                <th>EXAM DATE</th>
+                <th>SEQUENCE</th>
+                <th>AI DIAGNOSIS</th>
+                <th>CONFIDENCE</th>
+                <th>VOLUME</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="dbRecordsTableBody">
+              <!-- Dynamically populated from IndexedDB / SQLite -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <span class="db-storage-info" id="dbStorageInfoText">
+          Active Storage Engine: <strong id="lblActiveStorageEngine">IndexedDB (Browser Persistent DB)</strong> • REST API: <span id="apiStatusBadge">Connecting...</span>
+        </span>
+        <button class="btn btn-secondary" id="btnOkDbModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cloud & Remote API Configuration Modal -->
+  <div class="modal-backdrop" id="cloudModal" style="display: none;">
+    <div class="modal-dialog cloud-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon cloud">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Cloud & Remote AI API Connection Hub</h3>
+            <span class="modal-sub">Connect to Cloud Inference Engines, Model Endpoints & PACS Storage</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseCloudModal">×</button>
+      </div>
+
+      <div class="modal-body cloud-modal-body">
+        <!-- Cloud Provider Selector Tabs -->
+        <div class="cloud-provider-grid">
+          <label class="provider-card active" data-provider="custom">
+            <input type="radio" name="cloudProvider" value="custom" checked hidden>
+            <div class="provider-radio-dot"></div>
+            <div class="provider-info">
+              <div class="p-name">Custom PyTorch / FastAPI</div>
+              <div class="p-desc">Self-hosted Docker, Cloud Run, or AWS EC2 endpoint</div>
+            </div>
+          </label>
+
+          <label class="provider-card" data-provider="gemini">
+            <input type="radio" name="cloudProvider" value="gemini" hidden>
+            <div class="provider-radio-dot"></div>
+            <div class="provider-info">
+              <div class="p-name">Google Gemini Vision API</div>
+              <div class="p-desc">Multimodal Neuro-Radiology Second-Opinion AI</div>
+            </div>
+          </label>
+
+          <label class="provider-card" data-provider="vertex">
+            <input type="radio" name="cloudProvider" value="vertex" hidden>
+            <div class="provider-radio-dot"></div>
+            <div class="provider-info">
+              <div class="p-name">GCP Vertex AI / SageMaker</div>
+              <div class="p-desc">Enterprise Managed Healthcare ML Endpoint</div>
+            </div>
+          </label>
+
+          <label class="provider-card" data-provider="firebase">
+            <input type="radio" name="cloudProvider" value="firebase" hidden>
+            <div class="provider-radio-dot"></div>
+            <div class="provider-info">
+              <div class="p-name">Cloud Storage / Firebase</div>
+              <div class="p-desc">Firestore patient records & Cloud Storage DICOM sync</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Connection Configuration Form -->
+        <div class="cloud-form-container">
+          <div class="cloud-form-row">
+            <label class="cloud-field-label">Cloud API Endpoint URL</label>
+            <div class="cloud-input-group">
+              <span class="input-prefix">POST</span>
+              <input type="url" id="inputCloudEndpoint" placeholder="https://api.your-cloud-domain.com/v1/predict" value="http://localhost:3000/api/cloud/predict">
+            </div>
+            <span class="field-hint">Supports custom Python FastAPI, Flask, TorchServe, or Vertex AI endpoints.</span>
+          </div>
+
+          <div class="cloud-form-row">
+            <label class="cloud-field-label">API Key / Bearer Authentication Token</label>
+            <div class="cloud-input-group">
+              <input type="password" id="inputCloudApiKey" placeholder="Enter API Key (e.g., Bearer eyJhbGci... or Gemini API Key)">
+              <button class="btn btn-secondary btn-sm" id="btnToggleApiKeyMask" type="button">Show</button>
+            </div>
+            <span class="field-hint">Stored securely in your local browser storage. Never transmitted to third-party trackers.</span>
+          </div>
+
+          <div class="cloud-form-row-grid">
+            <div class="form-col">
+              <label class="cloud-field-label">Target Model Architecture</label>
+              <select id="selectCloudModel" class="cloud-select">
+                <option value="neuro-swin-v4">NeuroNet-SwinUNETR-v4.2 (BraTS 3D Ensemble)</option>
+                <option value="vit-dense-b7">Hybrid VisionTransformer + EfficientNet-B7</option>
+                <option value="gemini-2-flash">Gemini 2.0 Flash Multimodal Vision</option>
+                <option value="custom-onnx">Custom TensorRT / ONNX Accelerated Model</option>
+              </select>
+            </div>
+
+            <div class="form-col">
+              <label class="cloud-field-label">Cloud Region / Datacenter</label>
+              <select id="selectCloudRegion" class="cloud-select">
+                <option value="us-central1">us-central1 (Iowa, USA)</option>
+                <option value="europe-west1">europe-west1 (Belgium, EU)</option>
+                <option value="asia-south1">asia-south1 (Mumbai, India)</option>
+                <option value="local">Local Development Server (:3000)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Feature Toggles -->
+          <div class="cloud-toggles-row">
+            <label class="cloud-checkbox-label">
+              <input type="checkbox" id="chkAutoCloudInference" checked>
+              <span>Auto-dispatch new MRI uploads to Cloud Inference Engine</span>
+            </label>
+            <label class="cloud-checkbox-label">
+              <input type="checkbox" id="chkCloudPacsBackup" checked>
+              <span>Mirror patient records & reports to Cloud PACS Storage</span>
+            </label>
+          </div>
+
+          <!-- Test Connection & Ping Panel -->
+          <div class="cloud-ping-panel" id="cloudPingPanel">
+            <div class="ping-status-left">
+              <div class="ping-status-indicator" id="pingDot"></div>
+              <div>
+                <div class="ping-status-title" id="pingTitle">Ready to Test Cloud Connection</div>
+                <div class="ping-status-sub" id="pingSub">Target: <span id="pingTargetText">http://localhost:3000/api/cloud/predict</span></div>
+              </div>
+            </div>
+            <div class="ping-actions">
+              <span class="ping-ms-badge" id="pingMsBadge" style="display: none;">38ms Latency</span>
+              <button class="btn btn-secondary btn-sm" id="btnTestCloudPing">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Ping & Test API
+              </button>
+            </div>
+          </div>
+
+          <div class="cloud-response-preview" id="cloudResponsePreview" style="display: none;">
+            <div class="preview-head">LATEST CLOUD API RESPONSE [HTTP 200 OK]</div>
+            <pre id="cloudResponseJson"></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelCloud">Close</button>
+        <button class="btn btn-primary" id="btnSaveCloudSettings">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Save & Apply Cloud Configuration
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clinician Authentication Portal Modal -->
+  <div class="modal-backdrop" id="loginModal" style="display: none;">
+    <div class="modal-dialog login-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon auth">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Clinician Authentication Portal</h3>
+            <span class="modal-sub">Secure Access to NeuroScan PACS & SaMD Diagnostic Tools</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseLoginModal">×</button>
+      </div>
+
+      <div class="modal-body login-modal-body">
+        <!-- Portal Tabs Switcher: Clinician vs Patient -->
+        <div class="modal-auth-tabs">
+          <button class="m-auth-tab active" id="tabAuthClinician">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Clinician / Doctor Login
+          </button>
+          <button class="m-auth-tab" id="tabAuthPatient">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+            Patient / Family Login
+          </button>
+        </div>
+
+        <!-- Clinician Login Section -->
+        <div id="modalClinicianSection">
+          <!-- Quick 1-Click Clinician Demo Login Cards -->
+          <div class="quick-login-section">
+            <div class="quick-login-title">QUICK 1-CLICK DEMO CLINICIAN LOGIN</div>
+            <div class="quick-login-grid">
+              <button class="quick-login-card" id="btnQuickLoginJenkins">
+                <div class="q-avatar">SJ</div>
+                <div class="q-details">
+                  <div class="q-name">Dr. Sarah Jenkins, MD, FACR</div>
+                  <div class="q-role">Attending Neuroradiologist</div>
+                  <div class="q-inst">Johns Hopkins Neuro-Oncology</div>
+                </div>
+              </button>
+              <button class="quick-login-card" id="btnQuickLoginVance">
+                <div class="q-avatar vance">MV</div>
+                <div class="q-details">
+                  <div class="q-name">Dr. Marcus Vance, MD, FACS</div>
+                  <div class="q-role">Chief of Neurosurgery</div>
+                  <div class="q-inst">Memorial Brain Tumor Center</div>
+                </div>
+              </button>
+              <button class="quick-login-card" id="btnQuickLoginRostova">
+                <div class="q-avatar rostova">ER</div>
+                <div class="q-details">
+                  <div class="q-name">Dr. Elena Rostova, MD</div>
+                  <div class="q-role">Neuro-Oncology Clinical Fellow</div>
+                  <div class="q-inst">Stanford Cancer Institute</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-divider-line">
+            <span>OR SIGN IN WITH INSTITUTIONAL CREDENTIALS</span>
+          </div>
+
+          <!-- Custom Login Form -->
+          <form class="login-form" id="loginForm" onsubmit="return false;">
+            <div class="form-row">
+              <label class="form-label">Hospital / Healthcare Network</label>
+              <select class="form-select" id="loginHospital">
+                <option value="jh">Johns Hopkins Comprehensive Brain Tumor Center</option>
+                <option value="mayo">Mayo Clinic Department of Neuroradiology</option>
+                <option value="stanford">Stanford Neuroscience Health Center</option>
+                <option value="general">Metro Health Neuro-Oncology Institute</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label class="form-label">Clinician User ID / Institutional Email</label>
+              <input type="text" class="form-input" id="loginEmail" placeholder="e.g. s.jenkins@hopkins.edu or DR-8042" value="s.jenkins@hopkins.edu" required>
+            </div>
+
+            <div class="form-row">
+              <label class="form-label">Password</label>
+              <div class="input-password-wrap">
+                <input type="password" class="form-input" id="loginPassword" value="••••••••••••" required>
+                <button type="button" class="btn-toggle-pw" id="btnToggleLoginPw">Show</button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="form-label">Clinical Specialty / Access Tier</label>
+              <div class="role-pills-row">
+                <label class="role-pill active">
+                  <input type="radio" name="loginRole" value="Neuroradiologist" checked hidden>
+                  <span>Neuroradiologist</span>
+                </label>
+                <label class="role-pill">
+                  <input type="radio" name="loginRole" value="Neurosurgeon" hidden>
+                  <span>Neurosurgeon</span>
+                </label>
+                <label class="role-pill">
+                  <input type="radio" name="loginRole" value="Neuro-Oncologist" hidden>
+                  <span>Neuro-Oncologist</span>
+                </label>
+                <label class="role-pill">
+                  <input type="radio" name="loginRole" value="Resident / Fellow" hidden>
+                  <span>Resident</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-bottom-row">
+              <label class="form-checkbox">
+                <input type="checkbox" id="chkRememberMe" checked>
+                <span>Keep clinician session active (8 hours)</span>
+              </label>
+              <a href="#" class="form-link" onclick="alert('Demo Mode: Use 1-Click Login buttons above!'); return false;">Forgot credentials?</a>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-full btn-submit-auth" id="btnSubmitLogin">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Sign In to Diagnostic PACS
+            </button>
+          </form>
+        </div>
+
+        <!-- Patient Login Section in Modal -->
+        <div id="modalPatientSection" style="display: none;">
+          <div class="quick-login-section">
+            <div class="quick-login-title">QUICK 1-CLICK DEMO PATIENT ACCESS</div>
+            <div class="quick-login-grid">
+              <button class="quick-login-card" id="btnModalPatientDoe">
+                <div class="q-avatar" style="background: linear-gradient(135deg, #ff1744, #d50000); color: #fff;">JD</div>
+                <div class="q-details">
+                  <div class="q-name">John M. Doe (MR-9823101)</div>
+                  <div class="q-role" style="color: #ff5252;">High-Grade Glioblastoma Care Plan</div>
+                  <div class="q-inst">Johns Hopkins Comprehensive Brain Tumor Center</div>
+                </div>
+              </button>
+              <button class="quick-login-card" id="btnModalPatientVance">
+                <div class="q-avatar vance">EV</div>
+                <div class="q-details">
+                  <div class="q-name">Eleanor R. Vance (MR-4402917)</div>
+                  <div class="q-role" style="color: #ffb300;">Meningioma Outpatient Surveillance</div>
+                  <div class="q-inst">Memorial Brain Tumor Center</div>
+                </div>
+              </button>
+              <button class="quick-login-card" id="btnModalPatientBrody">
+                <div class="q-avatar rostova" style="background: linear-gradient(135deg, #7c4dff, #651fff); color: #fff;">MB</div>
+                <div class="q-details">
+                  <div class="q-name">Marcus A. Brody (MR-7718290)</div>
+                  <div class="q-role" style="color: #b388ff;">Pituitary Macroadenoma Protocol</div>
+                  <div class="q-inst">Stanford Cancer Institute</div>
+                </div>
+              </button>
+              <button class="quick-login-card" id="btnModalPatientConnor">
+                <div class="q-avatar" style="background: linear-gradient(135deg, #00e676, #00b0ff); color: #070a12;">SC</div>
+                <div class="q-details">
+                  <div class="q-name">Sarah L. Connor (MR-1092844)</div>
+                  <div class="q-role" style="color: #69f0ae;">Normal Brain Screening Baseline</div>
+                  <div class="q-inst">Metro Health Imaging Center</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-divider-line">
+            <span>OR SIGN IN WITH PATIENT CREDENTIALS</span>
+          </div>
+
+          <form class="login-form" id="modalPatientLoginForm" onsubmit="return false;">
+            <div class="form-row">
+              <label class="form-label">Patient User ID / Medical Record Number (MRN)</label>
+              <input type="text" class="form-input" id="modalPatientUserId" placeholder="e.g. MR-9823101" value="MR-9823101" required>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Password</label>
+              <div class="input-password-wrap">
+                <input type="password" class="form-input" id="modalPatientPw" value="patient123" required>
+                <button type="button" class="btn-toggle-pw" id="btnToggleModalPatientPw">Show</button>
+              </div>
+            </div>
+            <div class="form-bottom-row">
+              <label class="form-checkbox">
+                <input type="checkbox" id="chkModalPatientRemember" checked>
+                <span>Remember this patient session</span>
+              </label>
+              <span class="form-hint" style="font-size: 0.65rem; color: var(--text-muted);">Default password: patient123</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-full btn-submit-auth" id="btnSubmitModalPatientLogin" style="background: linear-gradient(135deg, #00e5ff 0%, #00b0ff 100%);">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Sign In to Patient Portal
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <span class="auth-security-notice">
+          🔒 HIPAA & GDPR Compliant Medical Diagnostic Workstation • 256-bit AES Encryption
+        </span>
+        <button class="btn btn-secondary" id="btnCancelLogin">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Clinical Neuro-Oncology Chatbot Widget & Drawer -->
+  <div class="chatbot-floating-container">
+    <!-- Floating Trigger Pill Button -->
+    <button class="chatbot-trigger-btn" id="btnOpenChatbot" title="Ask NeuroBot AI Clinical Assistant">
+      <div class="chat-pulse-halo"></div>
+      <div class="chat-bot-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+          <rect x="4" y="8" width="16" height="12" rx="4"/>
+          <circle cx="9" cy="13" r="1.5" fill="#00e5ff"/>
+          <circle cx="15" cy="13" r="1.5" fill="#00e5ff"/>
+          <path d="M9 17h6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="chat-trigger-text">
+        <span class="ct-title">NeuroBot AI</span>
+        <span class="ct-sub">Clinical Co-Pilot</span>
+      </div>
+      <span class="chat-unread-dot"></span>
+    </button>
+
+    <!-- Chatbot Window Panel -->
+    <div class="chatbot-window-panel" id="chatbotPanel" style="display: none;">
+      <!-- Chat Header -->
+      <div class="chat-window-header">
+        <div class="chat-header-left">
+          <div class="chat-avatar-mini">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="4" y="8" width="16" height="12" rx="4"/>
+              <circle cx="9" cy="13" r="1.5" fill="#00e5ff"/>
+              <circle cx="15" cy="13" r="1.5" fill="#00e5ff"/>
+              <path d="M9 17h6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="chat-title-row">
+              <h4>NeuroBot AI Assistant</h4>
+              <span class="chat-badge-online">Active</span>
+            </div>
+            <div class="chat-sub" id="chatActiveContextBanner">
+              Context: Case #NS-8042 (Glioblastoma)
+            </div>
+          </div>
+        </div>
+        <div class="chat-header-actions">
+          <button class="chat-h-btn" id="btnClearChat" title="Clear Chat History">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+          <button class="chat-h-btn" id="btnCloseChatbot" title="Minimize Chatbot">✕</button>
+        </div>
+      </div>
+
+      <!-- Quick Prompt Suggestion Pills -->
+      <div class="chat-prompts-bar">
+        <button class="prompt-chip" data-prompt="Analyze and summarize the current MRI scan findings.">
+          🔍 Analyze Current Scan
+        </button>
+        <button class="prompt-chip" data-prompt="Explain the difference between Glioma and Meningioma on MRI.">
+          🧠 Glioma vs Meningioma
+        </button>
+        <button class="prompt-chip" data-prompt="How do the Grad-CAM feature activations explain this diagnosis?">
+          🔥 Explain Grad-CAM
+        </button>
+        <button class="prompt-chip" data-prompt="What are the clinical NCCN and surgical guidelines for this tumor?">
+          💊 Surgical Guidelines
+        </button>
+        <button class="prompt-chip" data-prompt="How is tumor volume and midline shift calculated by U-Net?">
+          📏 Volumetrics Math
+        </button>
+      </div>
+
+      <!-- Message History Thread -->
+      <div class="chat-messages-thread" id="chatMessagesThread">
+        <!-- Message 1: Initial Bot Greeting -->
+        <div class="chat-message bot">
+          <div class="msg-avatar">AI</div>
+          <div class="msg-bubble">
+            <p><strong>Hello Dr. Jenkins!</strong> I am your AI clinical neuro-oncology co-pilot.</p>
+            <p>I am synchronized with the active MRI in your PACS viewport (<strong id="chatMsgCurrentCase">Case #NS-8042: Glioblastoma Multiforme</strong>). You can ask me about tumor morphology, U-Net volumetric segmentation, Grad-CAM attention saliency, or clinical guidelines.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Box -->
+      <div class="chat-input-container">
+        <form id="chatInputForm" onsubmit="return false;" class="chat-form">
+          <input type="text" id="chatInputText" placeholder="Ask about this MRI scan, pathology, or treatment..." autocomplete="off">
+          <button type="submit" id="btnSendChatMessage" class="btn-chat-send" title="Send message">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </form>
+        <div class="chat-disclaimer">
+          AI-assisted clinical decision support. Correlate with histology & attending review.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
